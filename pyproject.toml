@@ -9,7 +9,7 @@ license = {text = "MIT"}
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
-  "pygame (>=2.6.0,<3.0.0)"
+  "pygame (>=2.6.0,<3.0.0)",
 ]
 
 [project.scripts]
@@ -21,3 +21,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 # package-mode = false
+
+[tool.poetry.group.dev.dependencies]
+black = "^24.10.0"
+
