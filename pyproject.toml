@@ -9,12 +9,15 @@ license = {text = "MIT"}
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+  "pygame (>=2.6.0,<3.0.0)"
 ]
 
+[project.scripts]
+sunscreen = 'sunscreen.main:main'
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
-package-mode = false
+# package-mode = false
