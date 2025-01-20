@@ -1,9 +1,12 @@
 import pygame
 
 class Renderer:
-  def __init__(self):
+  def __init__(self, fullscreen):
     pygame.init()
-    self.screen = pygame.display.set_mode((640, 480))
+    flags = 0
+    if fullscreen:
+      flags |= pygame.FULLSCREEN
+    self.screen = pygame.display.set_mode((640, 480), flags)
     self.clock = pygame.time.Clock()
 
   def render(self):
