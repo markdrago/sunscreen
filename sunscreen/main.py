@@ -1,14 +1,36 @@
 import argparse
+import pygame
 
+import sunscreen.loop
+import sunscreen.pygame_event_loop
 import sunscreen.renderer
 
 
 def main():
-    print("From Main()")
     args = parse_args()
+    pygame.init()
+
+    loop = sunscreen.loop.Loop()
+
     renderer = sunscreen.renderer.Renderer(args.fullscreen)
-    renderer.run()
-    print("Quitting")
+    loop.add_future(renderer.loop())
+
+    loop.set_event_handler(event_handler)
+    pygame_event_loop = sunscreen.pygame_event_loop.PygameEventLoop(
+        loop.queue_add_event
+    )
+    loop.add_external_loop(pygame_event_loop.run)
+
+    try:
+        loop.run()
+    finally:
+        print("Quitting")
+        pygame.event.post(pygame.event.Event(pygame.QUIT))
+        pygame.quit()
+
+
+def event_handler(event):
+    print("event", event)
 
 
 def parse_args():
