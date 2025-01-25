@@ -1,6 +1,8 @@
 import argparse
 import pygame
 
+import sunscreen.config
+import sunscreen.envoy_fetcher
 import sunscreen.loop
 import sunscreen.pygame_event_loop
 import sunscreen.renderer
@@ -8,12 +10,18 @@ import sunscreen.renderer
 
 def main():
     args = parse_args()
+    config = sunscreen.config.Config("sunscreen.cfg")
     pygame.init()
 
     loop = sunscreen.loop.Loop()
 
     renderer = sunscreen.renderer.Renderer(args.fullscreen)
     loop.add_future(renderer.loop())
+
+    envoy_fetcher = sunscreen.envoy_fetcher.EnvoyFetcher(
+        config.getEnvoyHost(), config.getEnvoyAccessToken()
+    )
+    loop.add_future(envoy_fetcher.loop())
 
     loop.set_event_handler(event_handler)
     pygame_event_loop = sunscreen.pygame_event_loop.PygameEventLoop(

@@ -41,5 +41,4 @@ class Loop:
             pass
         finally:
             for task in self.tasks:
-                print("cancelling", task)
                 task.cancel()
