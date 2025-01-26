@@ -1,8 +1,9 @@
+import aiohttp
 import asyncio
 
 import sunscreen.envoy
 
-FETCH_FREQUENCY_SECONDS = 5
+FETCH_FREQUENCY_SECONDS = 60
 
 
 class EnvoyFetcher:
@@ -10,7 +11,10 @@ class EnvoyFetcher:
         self.envoy = sunscreen.envoy.Envoy(host, access_token)
 
     async def loop(self):
-        while True:
-            res = await self.envoy.getReading()
-            print(res)
-            await asyncio.sleep(FETCH_FREQUENCY_SECONDS)
+        async with aiohttp.ClientSession(
+            headers=self.envoy.headers(), timeout=aiohttp.ClientTimeout(total=60)
+        ) as session:
+            while True:
+                res = await self.envoy.getReading(session)
+                print(res)
+                await asyncio.sleep(FETCH_FREQUENCY_SECONDS)
