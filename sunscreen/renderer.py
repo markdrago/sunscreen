@@ -13,6 +13,7 @@ class Renderer:
             flags |= pygame.FULLSCREEN
         self.screen = pygame.display.set_mode((640, 480), flags)
         pygame.display.set_caption("Sunscreen")
+        self.font = pygame.font.Font(None, size=50)
 
     async def loop(self):
         current_time = time.time()
@@ -22,14 +23,19 @@ class Renderer:
             time_over_target = max(0, last_time - current_time - target_delay)
             delay = max(MIN_DELAY, target_delay - time_over_target)
             await asyncio.sleep(delay)
-            self.render()
+            try:
+                self.render()
+            except Exception as e:
+                print("Render Exception", repr(e))
 
     def render(self):
         self.screen.fill("blue")
-
         player_pos = pygame.Vector2(
             self.screen.get_width() / 2, self.screen.get_height() / 2
         )
         pygame.draw.circle(self.screen, "red", player_pos, 40)
+
+        text_surface = self.font.render("test text", True, "white", "black")
+        self.screen.blit(text_surface, (0, 0))
 
         pygame.display.flip()
