@@ -3,7 +3,7 @@ import asyncio
 
 class Loop:
     def __init__(self):
-        self.tasks = []
+        self.tasks = set()
         self.event_handler = None
         self.loop = asyncio.get_event_loop()
         self.init_event_task()
@@ -24,11 +24,13 @@ class Loop:
     # external_loop: func that can loop infinitely
     def add_external_loop(self, external_loop):
         task = self.loop.run_in_executor(None, external_loop)
-        self.tasks.append(task)
+        self.tasks.add(task)
+        task.add_done_callback(self.tasks.discard)
+        task.add_done_callback(lambda _: self.loop.stop())
 
     def add_future(self, future):
         task = asyncio.ensure_future(future)
-        self.tasks.append(task)
+        self.tasks.add(task)
 
     # can be executed from another thread
     def queue_add_event(self, event):

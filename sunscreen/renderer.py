@@ -12,6 +12,7 @@ class Renderer:
         if fullscreen:
             flags |= pygame.FULLSCREEN
         self.screen = pygame.display.set_mode((640, 480), flags)
+        pygame.display.set_caption("Sunscreen")
 
     async def loop(self):
         current_time = time.time()
