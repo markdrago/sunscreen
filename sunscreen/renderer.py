@@ -1,9 +1,12 @@
 import asyncio
+import datetime
 import pygame
 import time
 
 TARGET_FPS = 10
 MIN_DELAY = 0.01
+SCREEN_WIDTH = 640
+SCREEN_HEIGHT = 480
 
 
 class Renderer:
@@ -11,9 +14,9 @@ class Renderer:
         flags = 0
         if fullscreen:
             flags |= pygame.FULLSCREEN
-        self.screen = pygame.display.set_mode((640, 480), flags)
+        self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), flags)
         pygame.display.set_caption("Sunscreen")
-        self.font = pygame.font.Font(None, size=50)
+        self.status_font = pygame.font.Font(None, size=20)
 
     async def loop(self):
         current_time = time.time()
@@ -29,13 +32,37 @@ class Renderer:
                 print("Render Exception", repr(e))
 
     def render(self):
-        self.screen.fill("blue")
+        self.screen.fill("black")
         player_pos = pygame.Vector2(
             self.screen.get_width() / 2, self.screen.get_height() / 2
         )
         pygame.draw.circle(self.screen, "red", player_pos, 40)
 
-        text_surface = self.font.render("test text", True, "white", "black")
-        self.screen.blit(text_surface, (0, 0))
+        self.frame()
+        self.status_time()
 
         pygame.display.flip()
+
+    def frame(self):
+        buffer = 15
+        width = 2
+        pygame.draw.rect(
+            self.screen,
+            "white",
+            pygame.Rect(
+                buffer,
+                buffer,
+                SCREEN_WIDTH - (buffer * 2),
+                SCREEN_HEIGHT - (buffer * 2),
+            ),
+            width,
+        )
+
+    def status_time(self):
+        now = datetime.datetime.now()
+        now_str = now.strftime("%Y-%m-%d %H:%M:%S")
+        (text_width, text_height) = self.status_font.size(now_str)
+        text_surface = self.status_font.render(now_str, True, "white", "black")
+        self.screen.blit(
+            text_surface, (SCREEN_WIDTH - 15 - text_width, SCREEN_HEIGHT - text_height)
+        )
