@@ -31,6 +31,7 @@ class Loop:
     def add_future(self, future):
         task = asyncio.ensure_future(future)
         self.tasks.add(task)
+        task.add_done_callback(self.tasks.discard)
 
     # can be executed from another thread
     def queue_add_event(self, event):

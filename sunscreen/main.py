@@ -1,7 +1,9 @@
 import argparse
+import asyncio
 import pygame
 
 import sunscreen.config
+import sunscreen.db
 import sunscreen.envoy_fetcher
 import sunscreen.loop
 import sunscreen.pygame_event_loop
@@ -18,8 +20,11 @@ def main():
     renderer = sunscreen.renderer.Renderer(args.fullscreen)
     loop.add_future(renderer.loop())
 
+    db = sunscreen.db.Db(config.getDbPath())
+    loop.add_future(db.init())
+
     envoy_fetcher = sunscreen.envoy_fetcher.EnvoyFetcher(
-        config.getEnvoyHost(), config.getEnvoyAccessToken()
+        config.getEnvoyHost(), config.getEnvoyAccessToken(), db.record_reading
     )
     loop.add_future(envoy_fetcher.loop())
 

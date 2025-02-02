@@ -13,3 +13,6 @@ class Config:
     def getEnvoyAccessToken(self):
         raw = self.cp["Envoy"]["AccessToken"]
         return re.sub(r"\s+", "", raw)
+
+    def getDbPath(self):
+        return self.cp["DB"]["Path"].strip()
