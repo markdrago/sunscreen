@@ -9,15 +9,11 @@ class Envoy:
         self.host = host
         self.access_token = access_token
 
+    # throws asyncio.TimeoutError & aiohttp.ClientConnectionError
     async def fetch(self, session, path):
         url = f"https://{self.host}{path}"
-        try:
-            async with session.get(url, ssl=False) as response:
-                return await response.json(content_type=None)
-        except asyncio.TimeoutError as e:
-            print("Envoy request timed out:", repr(e))
-        except aiohttp.ClientConnectionError as e:
-            print("Envoy connection failed:", repr(e))
+        async with session.get(url, ssl=False) as response:
+            return await response.json(content_type=None)
 
     async def getReading(self, session):
         json = await self.fetch(session, "/ivp/meters/reports/consumption")

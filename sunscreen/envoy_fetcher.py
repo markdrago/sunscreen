@@ -16,6 +16,10 @@ class EnvoyFetcher:
             headers=self.envoy.headers(), timeout=aiohttp.ClientTimeout(total=60)
         ) as session:
             while True:
-                res = await self.envoy.getReading(session)
-                await self.data_handler(res)
-                await asyncio.sleep(FETCH_FREQUENCY_SECONDS)
+                try:
+                    res = await self.envoy.getReading(session)
+                    await self.data_handler(res)
+                except (asyncio.TimeoutError, aiohttp.ClientConnectionError) as e:
+                    print("Error retrieving reading:", repr(e))
+                finally:
+                    await asyncio.sleep(FETCH_FREQUENCY_SECONDS)

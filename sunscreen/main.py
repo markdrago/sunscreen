@@ -7,6 +7,7 @@ import sunscreen.db
 import sunscreen.envoy_fetcher
 import sunscreen.loop
 import sunscreen.pygame_event_loop
+import sunscreen.recent_state
 import sunscreen.renderer
 
 
@@ -22,6 +23,9 @@ def main():
 
     db = sunscreen.db.Db(config.getDbPath())
     loop.add_future(db.init())
+
+    recent_state = sunscreen.recent_state.RecentState(db)
+    db.set_listener(recent_state.new_reading_notice)
 
     envoy_fetcher = sunscreen.envoy_fetcher.EnvoyFetcher(
         config.getEnvoyHost(), config.getEnvoyAccessToken(), db.record_reading
