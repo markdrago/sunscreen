@@ -1,4 +1,5 @@
 import aiosqlite
+import asyncio
 import sqlite3
 import textwrap
 
@@ -9,6 +10,7 @@ class Db:
     def __init__(self, path):
         self.path = path
         self.listener = None
+        self.conn = asyncio.Future()
 
     def set_listener(self, listener):
         self.listener = listener
@@ -17,7 +19,7 @@ class Db:
         # https://github.com/omnilib/aiosqlite/issues/290
         awaitable_conn = aiosqlite.connect(self.path)
         awaitable_conn.daemon = True
-        self.conn = await awaitable_conn
+        self.conn.set_result(await awaitable_conn)
         await self.create_tables()
 
     async def record_reading(self, reading):
@@ -33,8 +35,9 @@ class Db:
             "consumption": reading.consumption,
         }
 
-        row = await self.conn.execute_insert(insert_query, values)
-        await self.conn.commit()
+        conn = await self.conn
+        row = await conn.execute_insert(insert_query, values)
+        await conn.commit()
         await self.notify_listener(reading.time)
 
     async def notify_listener(self, readingTime):
@@ -54,7 +57,8 @@ class Db:
             "end": end,
         }
 
-        async with self.conn.execute(query, params) as cursor:
+        conn = await self.conn
+        async with conn.execute(query, params) as cursor:
             cursor.row_factory = reading_row_factory
             return await cursor.fetchall()
 
@@ -66,7 +70,8 @@ class Db:
             consumption INT
         )"""
 
-        await self.conn.execute(create_query)
+        conn = await self.conn
+        await conn.execute(create_query)
 
 
 def reading_row_factory(cursor, row):

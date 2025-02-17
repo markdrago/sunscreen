@@ -7,10 +7,11 @@ TARGET_FPS = 10
 MIN_DELAY = 0.01
 SCREEN_WIDTH = 640
 SCREEN_HEIGHT = 480
+EDGE_BUFFER = 16
 
 
 class Renderer:
-    def __init__(self, fullscreen):
+    def __init__(self, fullscreen, data_renderer):
         flags = 0
         if fullscreen:
             flags |= pygame.FULLSCREEN
@@ -18,6 +19,7 @@ class Renderer:
         pygame.display.set_caption("Sunscreen")
         pygame.mouse.set_visible(False)
         self.status_font = pygame.font.Font(None, size=24)
+        self.data_renderer = data_renderer
 
     async def loop(self):
         current_time = time.time()
@@ -39,25 +41,14 @@ class Renderer:
         )
         pygame.draw.circle(self.screen, "red", player_pos, 40)
 
-        self.frame()
+        self.render_data()
         self.status_time()
 
         pygame.display.flip()
 
-    def frame(self):
-        buffer = 16
-        width = 2
-        pygame.draw.rect(
-            self.screen,
-            "white",
-            pygame.Rect(
-                buffer,
-                buffer,
-                SCREEN_WIDTH - (buffer * 2),
-                SCREEN_HEIGHT - (buffer * 2),
-            ),
-            width,
-        )
+    def render_data(self):
+        surface = self.data_renderer.render()
+        self.screen.blit(surface, (EDGE_BUFFER, SCREEN_HEIGHT - 380 - EDGE_BUFFER))
 
     def status_time(self):
         now = datetime.datetime.now()

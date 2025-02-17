@@ -8,24 +8,31 @@ import sunscreen.envoy_fetcher
 import sunscreen.loop
 import sunscreen.pygame_event_loop
 import sunscreen.recent_state
+import sunscreen.recent_state_renderer
 import sunscreen.renderer
 
 
 def main():
     args = parse_args()
     config = sunscreen.config.Config("sunscreen.cfg")
-    pygame.init()
+    pygame.display.init()
+    pygame.font.init()
 
     loop = sunscreen.loop.Loop()
-
-    renderer = sunscreen.renderer.Renderer(args.fullscreen)
-    loop.add_future(renderer.loop())
 
     db = sunscreen.db.Db(config.getDbPath())
     loop.add_future(db.init())
 
     recent_state = sunscreen.recent_state.RecentState(db)
+    loop.add_future(recent_state.refresh())
     db.set_listener(recent_state.new_reading_notice)
+
+    recent_state_renderer = sunscreen.recent_state_renderer.RecentStateRenderer(
+        recent_state
+    )
+
+    renderer = sunscreen.renderer.Renderer(args.fullscreen, recent_state_renderer)
+    loop.add_future(renderer.loop())
 
     envoy_fetcher = sunscreen.envoy_fetcher.EnvoyFetcher(
         config.getEnvoyHost(), config.getEnvoyAccessToken(), db.record_reading

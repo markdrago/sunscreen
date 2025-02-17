@@ -4,6 +4,7 @@ import math
 import time
 
 import sunscreen.reading_span
+import sunscreen.reading_span_group
 
 BUCKET_MINS = 15
 
@@ -12,6 +13,9 @@ class RecentState:
     def __init__(self, db):
         self.db = db
         self.state = []
+
+    def get_state(self):
+        return self.state
 
     async def new_reading_notice(self, reading_time):
         if time.time() - (24 * 60) <= reading_time:
@@ -22,10 +26,9 @@ class RecentState:
         end_sec = int(time.time())
         readings = await self.db.get_readings(start_sec, end_sec)
         grouped = group_by_period(readings)
-        self.state = [reading_span(dt, list(readings)) for dt, readings in grouped]
-        print()
-        for span in self.state:
-            print(span)
+        self.state = sunscreen.reading_span_group.ReadingSpanGroup(
+            [reading_span(dt, list(readings)) for dt, readings in grouped]
+        )
 
 
 def reading_span(dt, readings):
