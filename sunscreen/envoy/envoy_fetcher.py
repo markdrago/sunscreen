@@ -1,14 +1,14 @@
 import aiohttp
 import asyncio
 
-import sunscreen.envoy
+from .envoy import Envoy
 
 FETCH_FREQUENCY_SECONDS = 60
 
 
 class EnvoyFetcher:
     def __init__(self, host, access_token, data_handler):
-        self.envoy = sunscreen.envoy.Envoy(host, access_token)
+        self.envoy = Envoy(host, access_token)
         self.data_handler = data_handler
 
     async def loop(self):

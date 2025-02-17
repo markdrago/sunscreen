@@ -1,7 +1,7 @@
 import aiohttp
 import asyncio
 
-import sunscreen.reading
+from ..state.reading import Reading
 
 
 class Envoy:
@@ -32,7 +32,7 @@ class Envoy:
         consumption = int(total_consumption * 1000)
         production = consumption - int(net_consumption * 1000)
 
-        return sunscreen.reading.Reading(time, production, consumption)
+        return Reading(time, production, consumption)
 
     def headers(self):
         return {

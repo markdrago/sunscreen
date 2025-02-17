@@ -3,8 +3,8 @@ import itertools
 import math
 import time
 
-import sunscreen.reading_span
-import sunscreen.reading_span_group
+from .reading_span import ReadingSpan
+from .reading_span_group import ReadingSpanGroup
 
 BUCKET_MINS = 15
 
@@ -26,13 +26,13 @@ class RecentState:
         end_sec = int(time.time())
         readings = await self.db.get_readings(start_sec, end_sec)
         grouped = group_by_period(readings)
-        self.state = sunscreen.reading_span_group.ReadingSpanGroup(
+        self.state = ReadingSpanGroup(
             [reading_span(dt, list(readings)) for dt, readings in grouped]
         )
 
 
 def reading_span(dt, readings):
-    return sunscreen.reading_span.ReadingSpan(
+    return ReadingSpan(
         dt,
         datetime.timedelta(minutes=BUCKET_MINS),
         len(readings),

@@ -2,47 +2,43 @@ import argparse
 import asyncio
 import pygame
 
-import sunscreen.config
-import sunscreen.db
-import sunscreen.envoy_fetcher
-import sunscreen.loop
-import sunscreen.pygame_event_loop
-import sunscreen.recent_state
-import sunscreen.recent_state_renderer
-import sunscreen.renderer
+from .config import Config
+from .state.db import Db
+from .envoy.envoy_fetcher import EnvoyFetcher
+from .loop.loop import Loop
+from .loop.pygame_event_loop import PygameEventLoop
+from .state.recent_state import RecentState
+from .render.recent_state_renderer import RecentStateRenderer
+from .render.renderer import Renderer
 
 
 def main():
     args = parse_args()
-    config = sunscreen.config.Config("sunscreen.cfg")
+    config = Config("sunscreen.cfg")
     pygame.display.init()
     pygame.font.init()
 
-    loop = sunscreen.loop.Loop()
+    loop = Loop()
 
-    db = sunscreen.db.Db(config.getDbPath())
+    db = Db(config.getDbPath())
     loop.add_future(db.init())
 
-    recent_state = sunscreen.recent_state.RecentState(db)
+    recent_state = RecentState(db)
     loop.add_future(recent_state.refresh())
     db.set_listener(recent_state.new_reading_notice)
 
-    recent_state_renderer = sunscreen.recent_state_renderer.RecentStateRenderer(
-        recent_state
-    )
+    recent_state_renderer = RecentStateRenderer(recent_state)
 
-    renderer = sunscreen.renderer.Renderer(args.fullscreen, recent_state_renderer)
+    renderer = Renderer(args.fullscreen, recent_state_renderer)
     loop.add_future(renderer.loop())
 
-    envoy_fetcher = sunscreen.envoy_fetcher.EnvoyFetcher(
+    envoy_fetcher = EnvoyFetcher(
         config.getEnvoyHost(), config.getEnvoyAccessToken(), db.record_reading
     )
     loop.add_future(envoy_fetcher.loop())
 
     loop.set_event_handler(event_handler)
-    pygame_event_loop = sunscreen.pygame_event_loop.PygameEventLoop(
-        loop.queue_add_event
-    )
+    pygame_event_loop = PygameEventLoop(loop.queue_add_event)
     loop.add_external_loop(pygame_event_loop.run)
 
     try:

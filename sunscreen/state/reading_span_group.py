@@ -1,11 +1,11 @@
 import dataclasses
 
-import sunscreen.reading_span
+from .reading_span import ReadingSpan
 
 
 @dataclasses.dataclass
 class ReadingSpanGroup:
-    spans: list[sunscreen.reading_span.ReadingSpan]
+    spans: list[ReadingSpan]
 
     def consumptions(self):
         return [s.consumption for s in self.spans]

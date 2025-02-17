@@ -3,7 +3,7 @@ import asyncio
 import sqlite3
 import textwrap
 
-import sunscreen.reading
+from .reading import Reading
 
 
 class Db:
@@ -76,6 +76,6 @@ class Db:
 
 def reading_row_factory(cursor, row):
     sqlite_row = sqlite3.Row(cursor, row)
-    return sunscreen.reading.Reading(
+    return Reading(
         sqlite_row["time"], sqlite_row["production"], sqlite_row["consumption"]
     )
