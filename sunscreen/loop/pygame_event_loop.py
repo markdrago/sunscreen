@@ -1,11 +1,16 @@
 import pygame
 
+from typing import Callable
+
+EventHandler = Callable[[pygame.event.Event], None]
+Event = pygame.event.Event
+
 
 class PygameEventLoop:
-    def __init__(self, event_handler):
+    def __init__(self, event_handler: EventHandler):
         self.event_handler = event_handler
 
-    def run(self):
+    def run(self) -> None:
         while True:
             event = pygame.event.wait()
             if event.type == pygame.QUIT:

@@ -12,7 +12,7 @@ from .render.recent_state_renderer import RecentStateRenderer
 from .render.renderer import Renderer
 
 
-def main():
+def main() -> None:
     args = parse_args()
     config = Config("sunscreen.cfg")
     pygame.display.init()
@@ -49,11 +49,11 @@ def main():
         pygame.quit()
 
 
-def event_handler(event):
+def event_handler(event: pygame.event.Event) -> None:
     print("event", event)
 
 
-def parse_args():
+def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         prog="sunscreen", description="Displays stats from an enphase solar system."
     )

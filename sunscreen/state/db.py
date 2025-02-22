@@ -3,26 +3,28 @@ import asyncio
 import sqlite3
 import textwrap
 
+from typing import Any, Awaitable, Callable, cast, Iterable, Optional
+
 from .reading import Reading
 
 
 class Db:
-    def __init__(self, path):
+    def __init__(self, path: str):
         self.path = path
-        self.listener = None
-        self.conn = asyncio.Future()
+        self.listener: Optional[Callable[[int], Awaitable[None]]]
+        self.conn: asyncio.Future[aiosqlite.Connection] = asyncio.Future()
 
-    def set_listener(self, listener):
+    def set_listener(self, listener: Callable[[int], Awaitable[None]]) -> None:
         self.listener = listener
 
-    async def init(self):
+    async def init(self) -> None:
         # https://github.com/omnilib/aiosqlite/issues/290
         awaitable_conn = aiosqlite.connect(self.path)
         awaitable_conn.daemon = True
         self.conn.set_result(await awaitable_conn)
         await self.create_tables()
 
-    async def record_reading(self, reading):
+    async def record_reading(self, reading: Reading) -> None:
         insert_query = """
         INSERT INTO reading
             (time, production, consumption)
@@ -40,11 +42,11 @@ class Db:
         await conn.commit()
         await self.notify_listener(reading.time)
 
-    async def notify_listener(self, readingTime):
+    async def notify_listener(self, readingTime: int) -> None:
         if self.listener:
             await self.listener(readingTime)
 
-    async def get_readings(self, start, end):
+    async def get_readings(self, start: int, end: int) -> Iterable[Reading]:
         query = """
         SELECT time, production, consumption
         FROM reading
@@ -59,10 +61,12 @@ class Db:
 
         conn = await self.conn
         async with conn.execute(query, params) as cursor:
-            cursor.row_factory = reading_row_factory
-            return await cursor.fetchall()
+            # Pretty sure the row_factory type is defined incorrectly in aiosqlite
+            cursor.row_factory = reading_row_factory  # type: ignore
+            # Type of cursor.fetchall specifies a sqlite3.Row despite row_factory
+            return cast(Iterable[Reading], await cursor.fetchall())
 
-    async def create_tables(self):
+    async def create_tables(self) -> None:
         create_query = """
         CREATE TABLE IF NOT EXISTS reading (
             time INT PRIMARY KEY,
@@ -74,7 +78,7 @@ class Db:
         await conn.execute(create_query)
 
 
-def reading_row_factory(cursor, row):
+def reading_row_factory(cursor: sqlite3.Cursor, row: tuple[Any, ...]) -> Reading:
     sqlite_row = sqlite3.Row(cursor, row)
     return Reading(
         sqlite_row["time"], sqlite_row["production"], sqlite_row["consumption"]

@@ -1,83 +1,94 @@
 import math
 import pygame
 
+from typing import Optional
+
+from ..state.recent_state import RecentState
+from ..state.reading_span_group import ReadingSpanGroup
+
 SURFACE_HEIGHT = 380
 SURFACE_WIDTH = 608
 
 
 class RecentStateRenderer:
-    def __init__(self, recent_state_provider):
+    def __init__(self, recent_state_provider: RecentState):
         self.recent_state_provider = recent_state_provider
-        self.state = None
-        self.surface = None
+        self.state: Optional[ReadingSpanGroup] = None
+        self.surface: Optional[pygame.Surface] = None
 
-    def render(self):
+    def render(self) -> pygame.Surface:
         state = self.recent_state_provider.get_state()
         if self.state == state and self.surface:
             return self.surface
-        self.state = state
-        self.surface = pygame.Surface((SURFACE_WIDTH, SURFACE_HEIGHT))
-        self.render_frame()
-        self.render_bars()
 
+        surface = pygame.Surface((SURFACE_WIDTH, SURFACE_HEIGHT))
+        render_frame(surface)
+        render_bars(surface, state)
+
+        self.state = state
+        self.surface = surface
         return self.surface
 
-    def render_bars(self):
-        right_buffer = 1
-        width = 5
-        buffer = 1
-        # TODO: handle missing spans
-        max_bar_count = min(len(self.state.spans), 24)
 
-        pixel_value = self.pixel_value()
-        mid_height = self.mid_height()
+def render_frame(surface: pygame.Surface) -> None:
+    width = 1
+    pygame.draw.rect(
+        surface,
+        "white",
+        pygame.Rect(
+            0,
+            0,
+            SURFACE_WIDTH,
+            SURFACE_HEIGHT,
+        ),
+        width,
+    )
 
-        next_x = SURFACE_WIDTH - right_buffer - width
-        for i in range(len(self.state.spans) - 1, -1, -1):
-            span = self.state.spans[i]
-            cons_h = math.floor(span.consumption / pixel_value)
-            prod_h = math.floor(span.production / pixel_value)
 
-            self.surface.fill(
-                "blue",
-                pygame.Rect(next_x, mid_height - prod_h, width, prod_h),
-            )
-            self.surface.fill(
-                "orange",
-                pygame.Rect(next_x, mid_height + 1, width, cons_h),
-            )
+def render_bars(surface: pygame.Surface, state: ReadingSpanGroup) -> None:
+    right_buffer = 1
+    width = 5
+    buffer = 1
+    # TODO: handle missing spans
+    max_bar_count = min(len(state.spans), 24)
 
-            next_x -= buffer + width
+    pixel_value = get_pixel_value(state)
+    mid_height = get_mid_height(state)
 
-        # draw mid_height line
-        pygame.draw.line(
-            self.surface,
-            "darkgray",
-            (buffer, mid_height),
-            (SURFACE_WIDTH - buffer, mid_height),
+    next_x = SURFACE_WIDTH - right_buffer - width
+    for i in range(len(state.spans) - 1, -1, -1):
+        span = state.spans[i]
+        cons_h = math.floor(span.consumption / pixel_value)
+        prod_h = math.floor(span.production / pixel_value)
+
+        surface.fill(
+            "blue",
+            pygame.Rect(next_x, mid_height - prod_h, width, prod_h),
+        )
+        surface.fill(
+            "orange",
+            pygame.Rect(next_x, mid_height + 1, width, cons_h),
         )
 
-    def render_frame(self):
-        width = 1
-        pygame.draw.rect(
-            self.surface,
-            "white",
-            pygame.Rect(
-                0,
-                0,
-                SURFACE_WIDTH,
-                SURFACE_HEIGHT,
-            ),
-            width,
-        )
+        next_x -= buffer + width
 
-    def mid_height(self):
-        max_prod = self.state.max_production()
-        max_cons = self.state.max_consumption()
-        ratio = max_prod / (max_prod + max_cons)
-        return round(SURFACE_HEIGHT * ratio)
+    # draw mid_height line
+    pygame.draw.line(
+        surface,
+        "darkgray",
+        (buffer, mid_height),
+        (SURFACE_WIDTH - buffer, mid_height),
+    )
 
-    def pixel_value(self):
-        sum_of_max = self.state.max_consumption() + self.state.max_production()
-        buffer = 3  # space for top/bottom edge and mid-line
-        return sum_of_max / (SURFACE_HEIGHT - 3)
+
+def get_mid_height(state: ReadingSpanGroup) -> int:
+    max_prod = state.max_production()
+    max_cons = state.max_consumption()
+    ratio = max_prod / (max_prod + max_cons)
+    return round(SURFACE_HEIGHT * ratio)
+
+
+def get_pixel_value(state: ReadingSpanGroup) -> float:
+    sum_of_max = state.max_consumption() + state.max_production()
+    buffer = 3  # space for top/bottom edge and mid-line
+    return sum_of_max / (SURFACE_HEIGHT - 3)

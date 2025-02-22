@@ -3,6 +3,8 @@ import datetime
 import pygame
 import time
 
+from .recent_state_renderer import RecentStateRenderer
+
 TARGET_FPS = 10
 MIN_DELAY = 0.01
 SCREEN_WIDTH = 640
@@ -11,7 +13,7 @@ EDGE_BUFFER = 16
 
 
 class Renderer:
-    def __init__(self, fullscreen, data_renderer):
+    def __init__(self, fullscreen: bool, data_renderer: RecentStateRenderer):
         flags = 0
         if fullscreen:
             flags |= pygame.FULLSCREEN
@@ -21,7 +23,7 @@ class Renderer:
         self.status_font = pygame.font.Font(None, size=24)
         self.data_renderer = data_renderer
 
-    async def loop(self):
+    async def loop(self) -> None:
         current_time = time.time()
         while True:
             last_time, current_time = current_time, time.time()
@@ -34,7 +36,7 @@ class Renderer:
             except Exception as e:
                 print("Render Exception", repr(e))
 
-    def render(self):
+    def render(self) -> None:
         self.screen.fill("black")
         player_pos = pygame.Vector2(
             self.screen.get_width() / 2, self.screen.get_height() / 2
@@ -46,11 +48,11 @@ class Renderer:
 
         pygame.display.flip()
 
-    def render_data(self):
+    def render_data(self) -> None:
         surface = self.data_renderer.render()
         self.screen.blit(surface, (EDGE_BUFFER, SCREEN_HEIGHT - 380 - EDGE_BUFFER))
 
-    def status_time(self):
+    def status_time(self) -> None:
         now = datetime.datetime.now()
         now_str = now.strftime("%b %d %H:%M:%S")
         (text_width, text_height) = self.status_font.size(now_str)
