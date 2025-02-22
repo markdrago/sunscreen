@@ -2,7 +2,7 @@ import datetime
 import itertools
 import math
 import time
-from typing import Callable, Iterable, Sequence, Tuple
+from typing import Callable, Dict, Iterable, Mapping, Sequence, Tuple
 
 from .db import Db
 from .reading import Reading
@@ -29,8 +29,9 @@ class RecentState:
         end_sec = int(time.time())
         readings = await self.db.get_readings(start_sec, end_sec)
         grouped = group_by_period(readings)
+
         self.state = ReadingSpanGroup(
-            [reading_span(dt, list(readings)) for dt, readings in grouped]
+            [reading_span(dt, list(readings)) for dt, readings in grouped.items()]
         )
 
 
@@ -52,12 +53,17 @@ def mean_property(func: Callable[[Reading], int], readings: Sequence[Reading]) -
     return int(mean / (60 // BUCKET_MINS))
 
 
-# takes readings, returns grouped by BUCKET_MIN-sized intervals
-# key is interval start
 def group_by_period(
     readings: Iterable[Reading],
-) -> Iterable[Tuple[datetime.datetime, Iterable[Reading]]]:
-    return itertools.groupby(readings, lambda r: period_start(r.time))
+) -> Mapping[datetime.datetime, Iterable[Reading]]:
+    result: Dict[datetime.datetime, list[Reading]] = {}
+    for dt in all_period_starts():
+        result[dt] = []
+    for reading in readings:
+        reading_period = period_start(reading.time)
+        if reading_period in result:
+            result[reading_period].append(reading)
+    return result
 
 
 def period_start(epoch: float) -> datetime.datetime:
@@ -65,6 +71,15 @@ def period_start(epoch: float) -> datetime.datetime:
     minute_group_index = min(math.floor(dt.minute / BUCKET_MINS), (59 // BUCKET_MINS))
     start_min = minute_group_index * BUCKET_MINS
     return dt.replace(minute=start_min, second=0, microsecond=0)
+
+
+def all_period_starts() -> Sequence[datetime.datetime]:
+    current_start = period_start(time.time())
+    results = []
+    for i in range(24 * (60 // BUCKET_MINS), 0, -1):
+        delta = datetime.timedelta(minutes=(i - 1) * BUCKET_MINS)
+        results.append(current_start - delta)
+    return results
 
 
 def state_start() -> datetime.datetime:
