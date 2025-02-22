@@ -2,14 +2,12 @@ import datetime
 import itertools
 import math
 import time
+from typing import Callable, Iterable, Sequence, Tuple
 
+from .db import Db
 from .reading import Reading
 from .reading_span import ReadingSpan
 from .reading_span_group import ReadingSpanGroup
-
-from .db import Db
-
-from typing import Callable, Iterable, Sequence, Tuple
 
 BUCKET_MINS = 15
 

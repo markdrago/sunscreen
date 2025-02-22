@@ -1,10 +1,10 @@
 import math
-import pygame
-
 from typing import Optional
 
-from ..state.recent_state import RecentState
+import pygame
+
 from ..state.reading_span_group import ReadingSpanGroup
+from ..state.recent_state import RecentState
 
 SURFACE_HEIGHT = 380
 SURFACE_WIDTH = 608

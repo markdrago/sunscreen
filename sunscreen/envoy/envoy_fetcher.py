@@ -1,10 +1,10 @@
-import aiohttp
 import asyncio
-
-from .envoy import Envoy, EnvoyError
-from ..state.reading import Reading
-
 from typing import Awaitable, Callable
+
+import aiohttp
+
+from ..state.reading import Reading
+from .envoy import Envoy, EnvoyError
 
 FETCH_FREQUENCY_SECONDS = 60
 

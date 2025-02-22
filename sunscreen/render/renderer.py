@@ -1,7 +1,8 @@
 import asyncio
 import datetime
-import pygame
 import time
+
+import pygame
 
 from .recent_state_renderer import RecentStateRenderer
 

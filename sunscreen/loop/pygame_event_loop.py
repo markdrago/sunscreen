@@ -1,6 +1,6 @@
-import pygame
-
 from typing import Callable
+
+import pygame
 
 EventHandler = Callable[[pygame.event.Event], None]
 Event = pygame.event.Event

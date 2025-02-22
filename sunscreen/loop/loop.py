@@ -1,6 +1,6 @@
 import asyncio
-
 from typing import Any, Callable, Coroutine, Optional
+
 from .pygame_event_loop import Event, EventHandler
 
 

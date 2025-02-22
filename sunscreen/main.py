@@ -1,15 +1,16 @@
 import argparse
 import asyncio
+
 import pygame
 
 from .config import Config
-from .state.db import Db
 from .envoy.envoy_fetcher import EnvoyFetcher
 from .loop.loop import Loop
 from .loop.pygame_event_loop import PygameEventLoop
-from .state.recent_state import RecentState
 from .render.recent_state_renderer import RecentStateRenderer
 from .render.renderer import Renderer
+from .state.db import Db
+from .state.recent_state import RecentState
 
 
 def main() -> None:

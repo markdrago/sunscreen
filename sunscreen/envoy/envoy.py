@@ -1,9 +1,9 @@
-import aiohttp
 import asyncio
+from typing import Any, Dict, List, TypedDict, cast
+
+import aiohttp
 
 from ..state.reading import Reading
-
-from typing import Any, cast, Dict, List, TypedDict
 
 
 class Cumulative(TypedDict):

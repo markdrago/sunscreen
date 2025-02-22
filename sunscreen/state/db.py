@@ -1,9 +1,9 @@
-import aiosqlite
 import asyncio
 import sqlite3
 import textwrap
+from typing import Any, Awaitable, Callable, Iterable, Optional, cast
 
-from typing import Any, Awaitable, Callable, cast, Iterable, Optional
+import aiosqlite
 
 from .reading import Reading
 
