@@ -8,6 +8,7 @@ from ..state.recent_state import RecentState
 
 SURFACE_HEIGHT = 380
 SURFACE_WIDTH = 608
+LEFT_AXIS_BAR_X = 30
 
 
 class RecentStateRenderer:
@@ -15,6 +16,7 @@ class RecentStateRenderer:
         self.recent_state_provider = recent_state_provider
         self.state: Optional[ReadingSpanGroup] = None
         self.surface: Optional[pygame.Surface] = None
+        self.axis_font = pygame.font.Font(None, size=20)
 
     def render(self) -> pygame.Surface:
         state = self.recent_state_provider.get_state()
@@ -24,6 +26,7 @@ class RecentStateRenderer:
         surface = pygame.Surface((SURFACE_WIDTH, SURFACE_HEIGHT))
         render_frame(surface)
         render_bars(surface, state)
+        render_axis(surface, self.axis_font, state)
 
         self.state = state
         self.surface = surface
@@ -76,9 +79,77 @@ def render_bars(surface: pygame.Surface, state: ReadingSpanGroup) -> None:
     pygame.draw.line(
         surface,
         "darkgray",
-        (buffer, mid_height),
+        (LEFT_AXIS_BAR_X, mid_height),
         (SURFACE_WIDTH - buffer, mid_height),
     )
+
+
+def render_axis(
+    surface: pygame.Surface, font: pygame.font.Font, state: ReadingSpanGroup
+) -> None:
+    label_right_gap = 2
+    mid_height = get_mid_height(state)
+    pixel_value = get_pixel_value(state) / 1_000_000  # milliwatts -> kilowatts
+
+    # border bar
+    pygame.draw.line(
+        surface,
+        "darkgray",
+        (LEFT_AXIS_BAR_X, 0),
+        (LEFT_AXIS_BAR_X, SURFACE_HEIGHT),
+    )
+
+    item_vspace = 20
+    axis_value = get_axis_value(pixel_value, item_vspace)
+
+    start_neg = -int((state.max_consumption() / 1_000_000) / axis_value)
+    end_pos = math.ceil((state.max_production() / 1_000_000) / axis_value)
+    for i in range(start_neg, end_pos):
+        render_axis_item(
+            surface, font, label_right_gap, mid_height, pixel_value, i * axis_value
+        )
+
+
+def render_axis_item(
+    surface: pygame.Surface,
+    font: pygame.font.Font,
+    label_right_gap: int,
+    mid_height: int,
+    pixel_value: float,
+    axis_item: float,
+) -> None:
+    axis_item_str = '{:0.3g}'.format(abs(axis_item))
+    (text_width, text_height) = font.size(axis_item_str)
+
+    # refuse to render partially out of vertical bounds
+    text_top = mid_height - (axis_item // pixel_value) - (text_height // 2)
+    if text_top <= 0:
+        return
+    text_bottom = text_top + text_height
+    if text_bottom >= SURFACE_HEIGHT:
+        return
+
+    # render axis item
+    text_surface = font.render(axis_item_str, True, "white", "black")
+    surface.blit(
+        text_surface,
+        (
+            LEFT_AXIS_BAR_X - text_width - label_right_gap,
+            text_top,
+        ),
+    )
+
+
+def get_axis_value(pixel_value: float, item_vspace: int) -> float:
+    item_value = pixel_value * item_vspace
+    prev = 0.0
+    for exp in range(-1, 2):
+        for mult in [1, 2.5, 5]:
+            curr = mult * float(pow(10, exp))
+            if item_value > prev and item_value < curr:
+                return curr
+            prev = curr
+    return 0.0
 
 
 def get_mid_height(state: ReadingSpanGroup) -> int:
