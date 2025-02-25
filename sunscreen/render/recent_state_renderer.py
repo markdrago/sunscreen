@@ -25,8 +25,9 @@ class RecentStateRenderer:
 
         surface = pygame.Surface((SURFACE_WIDTH, SURFACE_HEIGHT))
         render_frame(surface)
-        render_bars(surface, state)
-        render_axis(surface, self.axis_font, state)
+        if state.max_consumption() + state.max_production() > 0:
+            render_bars(surface, state)
+            render_axis(surface, self.axis_font, state)
 
         self.state = state
         self.surface = surface
@@ -118,7 +119,7 @@ def render_axis_item(
     pixel_value: float,
     axis_item: float,
 ) -> None:
-    axis_item_str = '{:0.3g}'.format(abs(axis_item))
+    axis_item_str = "{:0.3g}".format(abs(axis_item))
     (text_width, text_height) = font.size(axis_item_str)
 
     # refuse to render partially out of vertical bounds
