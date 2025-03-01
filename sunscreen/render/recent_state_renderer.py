@@ -53,8 +53,6 @@ def render_bars(surface: pygame.Surface, state: ReadingSpanGroup) -> None:
     right_buffer = 1
     width = 5
     buffer = 1
-    # TODO: handle missing spans
-    max_bar_count = min(len(state.spans), 24)
 
     pixel_value = get_pixel_value(state)
     mid_height = get_mid_height(state)
@@ -144,6 +142,8 @@ def render_axis_item(
 def get_axis_value(pixel_value: float, item_vspace: int) -> float:
     item_value = pixel_value * item_vspace
     prev = 0.0
+    # Goal of code below is to choose interesting / rounded axis tick marks
+    # Should end up with steps like; .01, .25, 0.5, 1.0, 2.5, 10, 25, etc.
     for exp in range(-1, 2):
         for mult in [1, 2.5, 5]:
             curr = mult * float(pow(10, exp))
