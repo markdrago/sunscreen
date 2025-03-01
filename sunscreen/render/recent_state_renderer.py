@@ -16,10 +16,10 @@ class RecentStateRenderer:
         self.surface = pygame.Surface((SURFACE_WIDTH, SURFACE_HEIGHT))
         self.mid_height = self.get_mid_height()
         self.pixel_value = self.get_pixel_value()
-        self.axis_font = pygame.font.Font(None, size=20)
+        self.axis_font = pygame.font.Font(None, size=22)
 
     def render(self) -> pygame.Surface:
-        self.render_frame()
+        # self.render_frame()
         if self.state.max_consumption() + self.state.max_production() > 0:
             self.render_bars()
             self.render_axis()
@@ -81,8 +81,7 @@ class RecentStateRenderer:
             (LEFT_AXIS_BAR_X, 0),
             (LEFT_AXIS_BAR_X, SURFACE_HEIGHT),
         )
-
-        item_vspace = 20
+        item_vspace = 28
         axis_value = get_axis_value(pixel_value_kw, item_vspace)
 
         start_neg = -int((self.state.max_consumption() / 1_000_000) / axis_value)
