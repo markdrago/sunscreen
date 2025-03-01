@@ -20,10 +20,6 @@ class RecentState:
     def get_state(self) -> ReadingSpanGroup:
         return self.state
 
-    async def new_reading_notice(self, reading_time: int) -> None:
-        if time.time() - (24 * 60) <= reading_time:
-            await self.refresh()
-
     async def refresh(self) -> None:
         start_sec = int(state_start().timestamp())
         end_sec = int(time.time())

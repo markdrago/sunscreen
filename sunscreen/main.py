@@ -11,6 +11,7 @@ from .render.recent_state_renderer import RecentStateRenderer
 from .render.renderer import Renderer
 from .state.db import Db
 from .state.recent_state import RecentState
+from .state.state_refresher import StateRefresher
 
 
 def main() -> None:
@@ -25,8 +26,9 @@ def main() -> None:
     loop.add_future(db.init())
 
     recent_state = RecentState(db)
-    loop.add_future(recent_state.refresh())
-    db.set_listener(recent_state.new_reading_notice)
+    state_refresher = StateRefresher(recent_state)
+    loop.add_future(state_refresher.loop())
+    db.set_listener(state_refresher.handle_new_reading)
 
     recent_state_renderer = RecentStateRenderer(recent_state)
 
