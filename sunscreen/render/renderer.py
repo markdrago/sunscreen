@@ -1,6 +1,7 @@
 import asyncio
 import datetime
 import time
+import traceback
 
 import pygame
 
@@ -36,6 +37,7 @@ class Renderer:
                 self.render()
             except Exception as e:
                 print("Render Exception", repr(e))
+                traceback.print_exc()
 
     def render(self) -> None:
         self.screen.fill("black")
