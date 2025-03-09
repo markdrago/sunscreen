@@ -5,8 +5,10 @@ import pygame
 from ..state.reading_span_group import ReadingSpanGroup
 from ..state.recent_state import RecentState
 
-SURFACE_HEIGHT = 380
-SURFACE_WIDTH = 608
+# 32 is two EDGE_BUFFERs from renderer
+SURFACE_HEIGHT = 480 - 32
+SURFACE_WIDTH = 640 - 32
+BARS_HEIGHT = 380
 LEFT_AXIS_BAR_X = 30
 
 
@@ -15,12 +17,14 @@ class RecentStateRenderer:
         self.state = state
         self.surface = pygame.Surface((SURFACE_WIDTH, SURFACE_HEIGHT))
         self.axis_font = pygame.font.Font(None, size=22)
+        self.header_font = pygame.font.Font(None, size=45)
 
     def render(self) -> pygame.Surface:
         # self.render_frame()
         if self.state.max_consumption() + self.state.max_production() > 0:
             self.mid_height = self.get_mid_height()
             self.pixel_value = self.get_pixel_value()
+            self.render_header()
             self.render_bars()
             self.render_axis()
 
@@ -39,6 +43,39 @@ class RecentStateRenderer:
             ),
             width,
         )
+
+    def render_header(self) -> None:
+        self.render_header_text(
+            self.state.production_sum(),
+            SURFACE_WIDTH // 2 - 16,
+            0,
+            True,
+        )
+        self.render_header_text(
+            self.state.consumption_sum(),
+            SURFACE_WIDTH // 2 + 16,
+            0,
+        )
+        self.render_header_text(
+            self.state.exported_sum(),
+            SURFACE_WIDTH // 2 - 16,
+            35,
+            True
+        )
+        self.render_header_text(
+            self.state.imported_sum(),
+            SURFACE_WIDTH // 2 + 16,
+            35,
+        )
+
+    def render_header_text(
+        self, milliwatts: int, x: int, y: int, right_align: bool = False
+    ) -> pygame.Surface:
+        header_val_str = "{:0.2f} KWh".format(milliwatts / 1_000_000)  # KWh
+        text_surface = self.header_font.render(header_val_str, True, "white", "black")
+        if right_align:
+            x -= text_surface.get_width()
+        self.surface.blit(text_surface, (x, y))
 
     def render_bars(self) -> None:
         right_buffer = 1
@@ -78,7 +115,7 @@ class RecentStateRenderer:
         pygame.draw.line(
             self.surface,
             "darkgray",
-            (LEFT_AXIS_BAR_X, 0),
+            (LEFT_AXIS_BAR_X, SURFACE_HEIGHT - BARS_HEIGHT),
             (LEFT_AXIS_BAR_X, SURFACE_HEIGHT),
         )
         item_vspace = 28
@@ -100,7 +137,7 @@ class RecentStateRenderer:
 
         # refuse to render partially out of vertical bounds
         text_top = self.mid_height - (axis_item // pixel_value_kw) - (text_height // 2)
-        if text_top <= 0:
+        if text_top <= SURFACE_HEIGHT - BARS_HEIGHT:
             return
         text_bottom = text_top + text_height
         if text_bottom >= SURFACE_HEIGHT:
@@ -120,12 +157,12 @@ class RecentStateRenderer:
         max_prod = self.state.max_production()
         max_cons = self.state.max_consumption()
         ratio = max_prod / (max_prod + max_cons)
-        return round(SURFACE_HEIGHT * ratio)
+        return round(BARS_HEIGHT * ratio) + (SURFACE_HEIGHT - BARS_HEIGHT)
 
     def get_pixel_value(self) -> float:
         sum_of_max = self.state.max_consumption() + self.state.max_production()
         buffer = 3  # space for top/bottom edge and mid-line
-        return sum_of_max / (SURFACE_HEIGHT - 3)
+        return sum_of_max / (BARS_HEIGHT - buffer)
 
 
 def get_axis_value(pixel_value_kw: float, item_vspace: int) -> float:

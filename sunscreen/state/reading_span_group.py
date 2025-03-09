@@ -18,3 +18,15 @@ class ReadingSpanGroup:
 
     def max_production(self) -> int:
         return max(self.productions())
+
+    def production_sum(self) -> int:
+        return sum(self.productions())
+
+    def consumption_sum(self) -> int:
+        return sum(self.consumptions())
+
+    def imported_sum(self) -> int:
+        return sum([s.imported for s in self.spans])
+
+    def exported_sum(self) -> int:
+        return sum([s.exported for s in self.spans])

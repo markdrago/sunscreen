@@ -13,3 +13,5 @@ class ReadingSpan:
     # Power in milliwatt hours / (durations in hour)
     production: int
     consumption: int
+    imported: int
+    exported: int

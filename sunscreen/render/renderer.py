@@ -41,19 +41,13 @@ class Renderer:
 
     def render(self) -> None:
         self.screen.fill("black")
-        player_pos = pygame.Vector2(
-            self.screen.get_width() / 2, self.screen.get_height() / 2
-        )
-        pygame.draw.circle(self.screen, "red", player_pos, 40)
-
         self.render_data()
         self.status_time()
-
         pygame.display.flip()
 
     def render_data(self) -> None:
         surface = self.data_renderer.render()
-        self.screen.blit(surface, (EDGE_BUFFER, SCREEN_HEIGHT - 380 - EDGE_BUFFER))
+        self.screen.blit(surface, (EDGE_BUFFER, EDGE_BUFFER))
 
     def status_time(self) -> None:
         now = datetime.datetime.now()

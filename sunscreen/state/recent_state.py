@@ -38,6 +38,8 @@ def reading_span(dt: datetime.datetime, readings: Sequence[Reading]) -> ReadingS
         len(readings),
         mean_property(lambda r: r.production, readings),
         mean_property(lambda r: r.consumption, readings),
+        mean_property(lambda r: max(0, r.consumption - r.production), readings),
+        mean_property(lambda r: max(0, r.production - r.consumption), readings),
     )
 
 
