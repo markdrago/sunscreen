@@ -22,7 +22,7 @@ class RecentStateRenderer:
 
     def render(self) -> pygame.Surface:
         # self.render_frame()
-        if self.state.max_consumption() + self.state.max_production() > 0:
+        if self.state.has_nonzero_data():
             self.mid_height = self.get_mid_height()
             self.pixel_value = self.get_pixel_value()
             self.render_header()

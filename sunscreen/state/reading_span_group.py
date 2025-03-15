@@ -30,3 +30,10 @@ class ReadingSpanGroup:
 
     def exported_sum(self) -> int:
         return sum([s.exported for s in self.spans])
+
+    def has_nonzero_data(self) -> bool:
+        return (
+            len(self.consumptions()) > 0
+            and len(self.productions()) > 0
+            and (self.max_consumption() > 0 or self.max_production() > 0)
+        )
