@@ -4,6 +4,7 @@ import pygame
 
 from ..state.reading_span_group import ReadingSpanGroup
 from ..state.recent_state import RecentState
+from . import icons
 
 # 32 is two EDGE_BUFFERs from renderer
 SURFACE_HEIGHT = 480 - 32
@@ -45,37 +46,57 @@ class RecentStateRenderer:
         )
 
     def render_header(self) -> None:
-        self.render_header_text(
-            self.state.production_sum(),
-            SURFACE_WIDTH // 2 - 16,
+        txt_prod = self.render_header_text(self.state.production_sum())
+        txt_cons = self.render_header_text(self.state.consumption_sum())
+        txt_export = self.render_header_text(self.state.exported_sum())
+        txt_import = self.render_header_text(self.state.imported_sum())
+
+        widest_left = max(txt_prod.get_width(), txt_export.get_width())
+        widest_right = max(txt_cons.get_width(), txt_import.get_width())
+
+        # icon, gap, left, gap, icon, gap, right
+        header_width = 32 + 16 + widest_left + 32 + 32 + 16 + widest_right
+        start_x = (SURFACE_WIDTH - header_width) // 2
+        self.render_header_row(
+            start_x,
             0,
-            True,
+            widest_left,
+            icons.sun(),
+            txt_prod,
+            icons.plug(),
+            txt_cons,
         )
-        self.render_header_text(
-            self.state.consumption_sum(),
-            SURFACE_WIDTH // 2 + 16,
-            0,
-        )
-        self.render_header_text(
-            self.state.exported_sum(),
-            SURFACE_WIDTH // 2 - 16,
-            35,
-            True
-        )
-        self.render_header_text(
-            self.state.imported_sum(),
-            SURFACE_WIDTH // 2 + 16,
-            35,
+        self.render_header_row(
+            start_x,
+            32,
+            widest_left,
+            icons.export(),
+            txt_export,
+            icons.import_icon(),
+            txt_import,
         )
 
-    def render_header_text(
-        self, milliwatts: int, x: int, y: int, right_align: bool = False
-    ) -> pygame.Surface:
-        header_val_str = "{:0.2f} KWh".format(milliwatts / 1_000_000)  # KWh
-        text_surface = self.header_font.render(header_val_str, True, "white", "black")
-        if right_align:
-            x -= text_surface.get_width()
-        self.surface.blit(text_surface, (x, y))
+    def render_header_row(
+        self,
+        x: int,
+        y: int,
+        txt_left_width: int,
+        icon1: pygame.Surface,
+        txt1: pygame.Surface,
+        icon2: pygame.Surface,
+        txt2: pygame.Surface,
+    ) -> None:
+        self.surface.blit(icon1, (x, y))
+        x += 32 + 16
+        self.surface.blit(txt1, (x, y))
+        x += txt_left_width + 32
+        self.surface.blit(icon2, (x, y))
+        x += 32 + 16
+        self.surface.blit(txt2, (x, y))
+
+    def render_header_text(self, milliwatts: int) -> pygame.Surface:
+        header_val_str = "{:0.2f} kWh".format(milliwatts / 1_000_000)  # KWh
+        return self.header_font.render(header_val_str, True, "white", "black")
 
     def render_bars(self) -> None:
         right_buffer = 1

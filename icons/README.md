@@ -1,0 +1,1 @@
+All icons MIT licensed from [glyphs.fyi](https://glyphs.fyi) with minor modifications made in InkScape (scale and color).
