@@ -110,11 +110,11 @@ class RecentStateRenderer:
             prod_h = math.floor(span.production / self.pixel_value)
 
             self.surface.fill(
-                "yellow",
+                "orange",
                 pygame.Rect(next_x, self.mid_height - prod_h, width, prod_h),
             )
             self.surface.fill(
-                "red",
+                "blue",
                 pygame.Rect(next_x, self.mid_height + 1, width, cons_h),
             )
 
