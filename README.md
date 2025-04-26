@@ -2,6 +2,8 @@
 
 Displays stats from an Enphase solar system.
 
+![Photo of Sunscreen running on Raspberry Pi Zero 2W](img/photo.jpg)
+
 ## Setup
 
 1. Clone the repository
