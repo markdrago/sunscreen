@@ -7,13 +7,11 @@ Displays stats from an Enphase solar system.
 ## Setup
 
 1. Clone the repository
-1. Install poetry version 2.0 or later: https://python-poetry.org/docs/
-1. Run `poetry install` to install dependencies
-  * You may need to run `poetry lock` if your available python version differs
-    from what was recorded in the lock file.
 1. Copy `sunscreen.cfg.example` to `sunscreen.cfg` and update with correct
     settings.
-1. Run `poetry run sunscreen` to start sunscreen.
+1. Install uv: https://docs.astral.sh/uv/
+1. Run `uv run sunscreen` to start sunscreen, optionally with `--fullscreen`
+    if running on a 640x480 screen.
 
 ## Envoy Access Token
 The access token must be retrieved from https://entrez.enphaseenergy.com/. You

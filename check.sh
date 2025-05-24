@@ -1,12 +1,12 @@
 #!/bin/sh
 
 echo "Running black..."
-poetry run black .
+uv tool run black .
 echo
 
 echo "Running mypy..."
-poetry run mypy .
+uv run mypy .
 echo
 
 echo "Running isort..."
-poetry run isort .
+uv tool run isort .

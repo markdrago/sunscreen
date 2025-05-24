@@ -2,6 +2,9 @@ sunscreen.cfg
 sunscreen.db
 curl.sh
 
+# uv
+uv.lock
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
