@@ -1,6 +1,5 @@
 import asyncio
 import sqlite3
-import textwrap
 from typing import Any, Awaitable, Callable, Iterable, Optional, cast
 
 import aiosqlite
@@ -38,7 +37,7 @@ class Db:
         }
 
         conn = await self.conn
-        row = await conn.execute_insert(insert_query, values)
+        await conn.execute_insert(insert_query, values)
         await conn.commit()
         await self.notify_listener(reading.time)
 

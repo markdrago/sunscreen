@@ -1,8 +1,7 @@
 import datetime
-import itertools
 import math
 import time
-from typing import Callable, Dict, Iterable, Mapping, Sequence, Tuple
+from typing import Callable, Dict, Iterable, Mapping, Sequence
 
 from .db import Db
 from .reading import Reading

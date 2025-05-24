@@ -3,7 +3,6 @@ import math
 import pygame
 
 from ..state.reading_span_group import ReadingSpanGroup
-from ..state.recent_state import RecentState
 from . import icons
 
 # 32 is two EDGE_BUFFERs from renderer

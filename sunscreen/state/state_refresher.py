@@ -1,6 +1,5 @@
 import asyncio
 from datetime import datetime, timedelta
-from typing import Awaitable, Callable
 
 from .recent_state import RecentState
 
