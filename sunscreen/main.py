@@ -6,11 +6,13 @@ from .config import Config
 from .envoy.envoy_fetcher import EnvoyFetcher
 from .loop.loop import Loop
 from .loop.pygame_event_loop import PygameEventLoop
-from .render.recent_state_renderer import RecentStateRenderer
 from .render.recent_state_render_cache import RecentStateRenderCache
+from .render.recent_state_renderer import RecentStateRenderer
 from .render.renderer import Renderer
+from .state.bucket_duration import BucketDurationQuarterHourly
 from .state.db import Db
 from .state.recent_state import RecentState
+from .state.rolling_period import RollingPeriod
 from .state.state_refresher import StateRefresher
 
 
@@ -25,7 +27,8 @@ def main() -> None:
     db = Db(config.getDbPath())
     loop.add_future(db.init())
 
-    recent_state = RecentState(db)
+    default_period = RollingPeriod(BucketDurationQuarterHourly, 24 * 4)
+    recent_state = RecentState(db, default_period)
     state_refresher = StateRefresher(recent_state)
     loop.add_future(state_refresher.loop())
     db.set_listener(state_refresher.handle_new_reading)
