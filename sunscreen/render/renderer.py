@@ -5,7 +5,7 @@ import traceback
 
 import pygame
 
-from .recent_state_render_cache import RecentStateRenderCache
+from .renderable import Renderable
 
 TARGET_FPS = 10
 MIN_DELAY = 0.01
@@ -15,7 +15,7 @@ EDGE_BUFFER = 16
 
 
 class Renderer:
-    def __init__(self, fullscreen: bool, data_renderer: RecentStateRenderCache):
+    def __init__(self, fullscreen: bool, data_renderer: Renderable):
         flags = 0
         if fullscreen:
             flags |= pygame.FULLSCREEN

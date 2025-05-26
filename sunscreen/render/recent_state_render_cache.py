@@ -1,14 +1,19 @@
-from typing import Optional
+from typing import Callable, Optional
 
 import pygame
 
 from ..state.reading_span_group import ReadingSpanGroup
 from ..state.recent_state import RecentState
-from .recent_state_renderer import RecentStateRenderer
+from .renderable import Renderable
 
 
 class RecentStateRenderCache:
-    def __init__(self, recent_state_provider: RecentState):
+    def __init__(
+        self,
+        recent_state_provider: RecentState,
+        renderer_factory: Callable[[ReadingSpanGroup], Renderable],
+    ) -> None:
+        self.renderer_factory = renderer_factory
         self.recent_state_provider = recent_state_provider
         self.state: Optional[ReadingSpanGroup] = None
         self.surface: Optional[pygame.Surface] = None
@@ -19,6 +24,6 @@ class RecentStateRenderCache:
             return self.surface
 
         self.state = state
-        renderer = RecentStateRenderer(self.state)
+        renderer = self.renderer_factory(self.state)
         self.surface = renderer.render()
         return self.surface

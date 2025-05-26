@@ -6,6 +6,7 @@ from .config import Config
 from .envoy.envoy_fetcher import EnvoyFetcher
 from .loop.loop import Loop
 from .loop.pygame_event_loop import PygameEventLoop
+from .render.recent_state_renderer import RecentStateRenderer
 from .render.recent_state_render_cache import RecentStateRenderCache
 from .render.renderer import Renderer
 from .state.db import Db
@@ -29,7 +30,7 @@ def main() -> None:
     loop.add_future(state_refresher.loop())
     db.set_listener(state_refresher.handle_new_reading)
 
-    recent_state_renderer = RecentStateRenderCache(recent_state)
+    recent_state_renderer = RecentStateRenderCache(recent_state, RecentStateRenderer)
 
     renderer = Renderer(args.fullscreen, recent_state_renderer)
     loop.add_future(renderer.loop())
